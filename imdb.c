@@ -55,17 +55,17 @@ array read_cast_member_file(char* filename, map all_movies)
       array_add(cast, member);
 
       // This is helpful for seeing progress as you're loading a file.
-      if(array_size(cast) % 1000000 == 0)
+      if(array_size(cast) % 100000 == 0)
 	     printf("Added cast member %s\n", member->name);
 
       break;
     case FAILURE:
-      free(member);
+      //free(member);
       skip_line(file); // this makes sure we're always moving forward
       break;
 
     case END_OF_LIST:
-      free(member);
+      //free(member);
       return cast;
     }
   }
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
   array all_cast = array_new();
 
   // start i at one to skip program name
-  for(int i = 1; i < argc; i++)
+//  for(int i = 0; i < argc; i++)
   {
     //array male_cast = read_cast_member_file("actors.list", all_movies);
     //array female_cast = read_cast_member_file("actresses.list", all_movies);
@@ -101,11 +101,11 @@ int main(int argc, char** argv)
     array male_cast = read_cast_member_file("actors.list", all_movies);
     array female_cast = read_cast_member_file("actresses.list", all_movies);
 
-    if(!male_cast)
+    /*if(!male_cast)
     {
        // file reading failed, but read_cast_member_file alerted the user already
       continue;
-    }
+    }*/
 
 
     // WRITE CODE HERE
@@ -114,6 +114,7 @@ int main(int argc, char** argv)
     // You need to merge (with a call to merge_arrays) these two arrays, producing
     // a new all_cast that contains both.
 
+    //all_cast = male_cast;
     all_cast = merge_arrays(male_cast, female_cast);
 
     //printf("Added cast member %s\n", *all_cast->mem[i]);

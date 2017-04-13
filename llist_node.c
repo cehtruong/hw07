@@ -35,4 +35,3 @@ void llist_node_free(llist_node* head)
     free(head);
   }
 }
-

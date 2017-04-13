@@ -120,19 +120,17 @@ read_result read_cast_member(FILE* file, cast_member* member, map all_movies)
 
     //What's key: key is a pointer to an array of char of movie name
     //What's value: value is pointer to a movie struct that has name of movie and cast member
-    movie* new_movie = map_get(all_movies, buf); //1.
-
-    if (new_movie == NULL){
-    	new_movie = malloc(sizeof(new_movie));
+     //1.
+    if (!map_contains(all_movies, buf)){
+      movie* new_movie = malloc(sizeof(movie)); //1.
     	new_movie->name = malloc_string(buf);
+      char* key = malloc_string(buf);
+      map_put(all_movies, key, new_movie); //2.
     	new_movie->cast = array_new();
-
-    	map_put(all_movies, malloc_string(buf), new_movie); //2.
     }
-
+    movie* new_movie = map_get(all_movies, buf);
     array_add(new_movie->cast, member); //3. ??????? cast or name
     llist_add(member->movies, new_movie); //4.
-
   }
   return SUCCESS;
 }
@@ -143,43 +141,64 @@ read_result read_cast_member(FILE* file, cast_member* member, map all_movies)
 // postconditions: returns a fresh array containing all the elements of src1 and src2
 //                 in sorted order
 // Note: You are responsible for freeing the returned array.
-array merge_arrays(array src1, array src2){
-
-  array result = array_new();
-  int size1  = array_size(src1);
+array merge_arrays(array src1, array src2)
+{
+  // WRITE CODE HERE
+  int size1 = array_size(src1);
   int size2 = array_size(src2);
-
-  int i = 0;
-  int j = 0;
+  array merged_array = array_new();
+  int i=0, j=0;
 
   while ( i < size1 && j < size2 ){
 
-    if (stricmp((array_get(src1,i))->name , (array_get(src2,j))->name) > 0){
-      array_add(result, array_get(src2,j));
-      free((array_get(src2,j)));
+    if (stricmp(array_get(src1,i)->name , array_get(src2,j)->name) > 0){
+      array_add(merged_array, array_get(src2,j));
+      //free((array_get(src2,j)));
       //add src2[i] to the array
       j++;
     }
 
-    else if (stricmp(array_get(src1,i)->name, (array_get(src2,j))->name) < 0){
-      array_add(result, array_get(src1,i));
-      free((array_get(src1,i)));
+    else {
+      array_add(merged_array, array_get(src1,i));
+      i++;
+    }
+
+    /*
+    else if (stricmp(array_get(src1,i)->name, array_get(src2,j)->name) < 0){
+      array_add(merged_array, array_get(src1,i));
+      //free((array_get(src1,i)));
       //add src1[i] to the array
       i++;
     }
 
-    else if (stricmp(array_get(src1,i)->name, (array_get(src2,j))->name) == 0){
+    else if (stricmp(array_get(src1,i)->name, array_get(src2,j)->name) == 0){
       //add src1[i] to the array
       //add src2[j] to the array
-      array_add(result, (array_get(src1,i)));
-      free(array_get(src1,i));
+      array_add(merged_array, (array_get(src1,i)));
+      //free(array_get(src1,i));
       i++;
-      array_add(result, (array_get(src2,j)));
-      free(array_get(src2,j));
+      array_add(merged_array, (array_get(src2,j)));
+      //free(array_get(src2,j));
       j++;
     }
+    */
   }
-  return NULL; // <-- REMOVE ME
+
+    //if size of src1 is bigger
+    if (size1 > size2) {
+      for (int k = size2; k < size1; k++) {
+array_add(merged_array, array_get(src1,k));
+      }
+    }
+
+    //if size of src2 is bigger
+    if (size2 > size1) {
+      for (int t = size1; t < size2; t++) {
+array_add(merged_array, array_get(src2,t));
+      }
+    }
+
+  return merged_array;
 }
 
 // Finds a cast member in a sorted array of cast members
@@ -197,7 +216,7 @@ cast_member* find_cast_member(array cast, char* name){
     mid = lo + (hi-lo)/2;
 
     //if input name matches with
-    if ( stricmp(name, array_get(cast,mid)->name) == 0){
+    if ( stricmp(array_get(cast,mid)->name,name) == 0){
       return array_get(cast,mid);
     }
     else if ( stricmp(array_get(cast,mid)->name, name) < 0){
