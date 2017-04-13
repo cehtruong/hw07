@@ -1,5 +1,5 @@
 /* imdb_functions.c
-   Name: Cecilia Han Truong 
+   Name: Cecilia Han Truong
    Resources used (websites / peers / etc):
    Youtube Video about Binary Search : https://www.youtube.com/watch?v=JQhciTuD3E8
 */
@@ -10,6 +10,8 @@
 #include <ctype.h>
 
 #include "imdb_functions.h"
+#include "types.h"
+#include "array.h"
 
 #define STRING_SIZE  200
 #define LEN "199"
@@ -20,7 +22,7 @@
    while(!feof(file) && getc(file) != '\n')
      ;
  }
- 
+
 // copy the given string into a newly-malloc'd buffer
 char* malloc_string(char* str)
 {
@@ -37,14 +39,14 @@ char* malloc_string(char* str)
      char c1 = *s1++;
      char c2 = *s2++;
      int d = toupper(c1) - toupper(c2);
- 
+
      if(d != 0 || !c1)
      {
        return d;
      }
    }
  }
- 
+
 
 // is the given string composed entirely of dashes?
 bool all_dashes(char* str)
@@ -72,7 +74,7 @@ bool all_dashes(char* str)
    }
    return false;
  }
- 
+
 // Reads in a cast member from the given file
 // preconditions: the file is open and at a line where a cast member begins
 //                member points to a valid cast_member struct
@@ -102,7 +104,7 @@ read_result read_cast_member(FILE* file, cast_member* member, map all_movies)
   while(fscanf(file, "%*[\t]%" LEN "[^\n]", buf) == 1)
   {
     skip_line(file); // eat rest of line
-    
+
     // cut it off at the first instance of 2 spaces
     char* spaces = strstr(buf, "  ");
     if(spaces)
@@ -121,16 +123,16 @@ read_result read_cast_member(FILE* file, cast_member* member, map all_movies)
     movie* new_movie = map_get(all_movies, buf); //1.
 
     if (new_movie == NULL){
-    	new_movie = malloc(sizeof(movie));
+    	new_movie = malloc(sizeof(new_movie));
     	new_movie->name = malloc_string(buf);
     	new_movie->cast = array_new();
 
     	map_put(all_movies, malloc_string(buf), new_movie); //2.
     }
 
-    array_add(new_movie->name, member); //3.
+    array_add(new_movie->cast, member); //3. ??????? cast or name
     llist_add(member->movies, new_movie); //4.
-    
+
   }
   return SUCCESS;
 }
@@ -143,35 +145,37 @@ read_result read_cast_member(FILE* file, cast_member* member, map all_movies)
 // Note: You are responsible for freeing the returned array.
 array merge_arrays(array src1, array src2){
 
-  array result = array_new(); 
+  array result = array_new();
+  int size1  = array_size(src1);
+  int size2 = array_size(src2);
 
-  int i = 0; 
-  int j = 0; 
+  int i = 0;
+  int j = 0;
 
-  while ( i < scr1->size && j < scr2->size ){
+  while ( i < size1 && j < size2 ){
 
-    if (stricmp(array_get(scr1,i)->name , array_get(scr2,j)->name) > 0){
-      array_add(result, array_get(src2,j)->name); 
-      free(array_get(src2,j)->name);
-      //add scr2[i] to the array
+    if (stricmp((array_get(src1,i))->name , (array_get(src2,j))->name) > 0){
+      array_add(result, array_get(src2,j));
+      free((array_get(src2,j)));
+      //add src2[i] to the array
       j++;
     }
 
-    else if (stricmp(array_get(scr1,i)->name, array_get(scr2,j)->name) < 0){
-      array_add(result, array_get(src1,i)->name);
-      free(array_get(src1,i)->name);
-      //add scr1[i] to the array 
+    else if (stricmp(array_get(src1,i)->name, (array_get(src2,j))->name) < 0){
+      array_add(result, array_get(src1,i));
+      free((array_get(src1,i)));
+      //add src1[i] to the array
       i++;
     }
 
-    else {
-      //add scr1[i] to the array 
-      //add scr2[j] to the array 
-      array_add(result, array_get(src1,i)->name);
-      free(array_get(src1,i)->name);
-      i++; 
-      array_add(result, array_get(src2,j)->name);
-      free(array_get(src2,j)->name);
+    else if (stricmp(array_get(src1,i)->name, (array_get(src2,j))->name) == 0){
+      //add src1[i] to the array
+      //add src2[j] to the array
+      array_add(result, (array_get(src1,i)));
+      free(array_get(src1,i));
+      i++;
+      array_add(result, (array_get(src2,j)));
+      free(array_get(src2,j));
       j++;
     }
   }
@@ -186,24 +190,23 @@ array merge_arrays(array src1, array src2){
 cast_member* find_cast_member(array cast, char* name){
 
   int lo = 1;
-  int hi = array_size(cast);
+  int hi = (array_size(cast))-1;
   int mid = 0;
 
   while (lo <= hi){
     mid = lo + (hi-lo)/2;
 
-    //if input name matches with 
+    //if input name matches with
     if ( stricmp(name, array_get(cast,mid)->name) == 0){
       return array_get(cast,mid);
     }
-    else if ( stricmp(array_get(cast,mid)->name, name) > 0){
-      hi = mid - 1; // d returns the difference between two letters, how is that significant to lo, hi and mid?
+    else if ( stricmp(array_get(cast,mid)->name, name) < 0){
+      lo = mid + 1; // d returns the difference between two letters, how is that significant to lo, hi and mid?
     }
     else{
        //
-       lo = mid + 1;
+       hi = mid - 1;
     }
+  }
   return NULL;
 }
-}
-  

@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h> 
+#include <string.h>
 
 #include "array.h"
 #include "map.h"
@@ -17,7 +17,7 @@
 
 #include "imdb_functions.h"
 
-// the IMDB files contain 239 header lines
+// the IMDB files contain 241 header lines
 #define HEADER_LINES 241
 
 // Reads in a file containing a list of cast members
@@ -48,22 +48,24 @@ array read_cast_member_file(char* filename, map all_movies)
   {
     cast_member* member = malloc(sizeof(cast_member));
     read_result result = read_cast_member(file, member, all_movies);
-    
+
     switch(result)
     {
     case SUCCESS:
       array_add(cast, member);
 
       // This is helpful for seeing progress as you're loading a file.
-      if(array_size(cast) % 1000 == 0)
-	printf("Added cast member %s\n", member->name);
-      
+      if(array_size(cast) % 1000000 == 0)
+	     printf("Added cast member %s\n", member->name);
+
       break;
     case FAILURE:
+      free(member);
       skip_line(file); // this makes sure we're always moving forward
       break;
-      
+
     case END_OF_LIST:
+      free(member);
       return cast;
     }
   }
@@ -71,31 +73,35 @@ array read_cast_member_file(char* filename, map all_movies)
   return cast; // shouldn't get here unless file is truncated
 }
 
-void HELP(char* line) {
-  char *temp; 
+/*void HELP(char* line) {
+  char *temp;
   temp = strchr(line, '\n');
   *temp = '\0';
-}
+} */
 
 // Our main program loop.
 // See King, p. 302, about argc and argv.
 int main(int argc, char** argv)
 {
-  if(argc < 2)
-  {
-    printf("Usage: %s [cast_member lists]\n", argv[0]);
-    return 1;
-  }
-	   
+  // if(argc < 2)
+  // {
+  //   printf("Usage: %s [cast_member lists]\n", argv[0]);
+  //   return 1;
+  // }
+
   map all_movies = map_new();
   array all_cast = array_new();
 
   // start i at one to skip program name
   for(int i = 1; i < argc; i++)
   {
-    array some_cast = read_cast_member_file(argv[i], all_movies);
+    //array male_cast = read_cast_member_file("actors.list", all_movies);
+    //array female_cast = read_cast_member_file("actresses.list", all_movies);
 
-    if(!some_cast)
+    array male_cast = read_cast_member_file("actors.list", all_movies);
+    array female_cast = read_cast_member_file("actresses.list", all_movies);
+
+    if(!male_cast)
     {
        // file reading failed, but read_cast_member_file alerted the user already
       continue;
@@ -108,23 +114,35 @@ int main(int argc, char** argv)
     // You need to merge (with a call to merge_arrays) these two arrays, producing
     // a new all_cast that contains both.
 
-    all_cast = merge_arrays(all_cast, some_cast);
+    all_cast = merge_arrays(male_cast, female_cast);
+
+    //printf("Added cast member %s\n", *all_cast->mem[i]);
   }
 
-    
+
 
   for(;;)
   {
     char name[200];
-    printf("Enter name: \n");
+    printf("Enter name: ");
     fgets(name,200,stdin);
-    HELP(name);
+    //HELP(name);
+    size_t size = strlen(name)-1;
+
+    if(name[size] == '\n') {
+      name[size] = '\0';
+    }
 
     if(find_cast_member(all_cast, name) != NULL) {
       printf("Found!\n");
+
     }
 
-    //return movie list 
+    else{
+      printf("Not found.\n");
+    }
+
+    //return movie list
 
     // WRITE CODE HERE
     // This is the main interactive loop, which you must write, as described
@@ -134,7 +152,6 @@ int main(int argc, char** argv)
 
   // WRITE CODE HERE
   // Free all used memory before exiting.
-  
+
   return 0;
 }
-
