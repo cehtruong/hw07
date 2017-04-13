@@ -141,10 +141,40 @@ read_result read_cast_member(FILE* file, cast_member* member, map all_movies)
 // postconditions: returns a fresh array containing all the elements of src1 and src2
 //                 in sorted order
 // Note: You are responsible for freeing the returned array.
-array merge_arrays(array src1, array src2)
-{
-  // WRITE CODE HERE
+array merge_arrays(array src1, array src2){
 
+  array result = array_new(); 
+
+  int i = 0; 
+  int j = 0; 
+
+  while ( i < scr1->size && j < scr2->size ){
+
+    if (stricmp(array_get(scr1,i)->name , array_get(scr2,j)->name) > 0){
+      array_add(result, array_get(src2,j)->name); 
+      free(array_get(src2,j)->name);
+      //add scr2[i] to the array
+      j++;
+    }
+
+    else if (stricmp(array_get(scr1,i)->name, array_get(scr2,j)->name) < 0){
+      array_add(result, array_get(src1,i)->name);
+      free(array_get(src1,i)->name);
+      //add scr1[i] to the array 
+      i++;
+    }
+
+    else {
+      //add scr1[i] to the array 
+      //add scr2[j] to the array 
+      array_add(result, array_get(src1,i)->name);
+      free(array_get(src1,i)->name);
+      i++; 
+      array_add(result, array_get(src2,j)->name);
+      free(array_get(src2,j)->name);
+      j++;
+    }
+  }
   return NULL; // <-- REMOVE ME
 }
 

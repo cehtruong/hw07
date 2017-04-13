@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h> 
 
 #include "array.h"
 #include "map.h"
@@ -70,6 +71,12 @@ array read_cast_member_file(char* filename, map all_movies)
   return cast; // shouldn't get here unless file is truncated
 }
 
+void HELP(char* line) {
+  char *temp; 
+  temp = strchr(line, '\n');
+  *temp = '\0';
+}
+
 // Our main program loop.
 // See King, p. 302, about argc and argv.
 int main(int argc, char** argv)
@@ -100,14 +107,22 @@ int main(int argc, char** argv)
     // and all_cast has all previous cast members.
     // You need to merge (with a call to merge_arrays) these two arrays, producing
     // a new all_cast that contains both.
+
+    all_cast = merge_arrays(all_cast, some_cast);
   }
 
-  for( ; ; )
+    
+
+  for(;;)
   {
+    char name[200];
+    printf("Enter name: \n");
+    fgets(name,200,stdin);
+    HELP(name);
 
-    fgets(all_cast,200,argv[i]);
-
-    find_cast_member(all_cast, argv[i]); 
+    if(find_cast_member(all_cast, name) != NULL) {
+      printf("Found!\n");
+    }
 
     //return movie list 
 
